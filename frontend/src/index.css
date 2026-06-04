@@ -18,6 +18,19 @@
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
+[data-theme="light"] {
+  --bg-dark: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.7);
+  --bg-card-hover: rgba(255, 255, 255, 0.9);
+  
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  
+  --border: rgba(0, 0, 0, 0.1);
+  --border-focus: rgba(0, 240, 255, 0.7);
+  --glass-shadow: 0 8px 32px 0 rgba(100, 100, 111, 0.2);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

@@ -1,21 +1,24 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '../services/auth.service';
+import { register } from '../services/auth.service';
 import { Activity } from 'lucide-react';
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
-      navigate('/');
-    } catch (err) {
-      setError('Invalid email or password');
+      await register(username, email, password);
+      setSuccess(true);
+      setTimeout(() => navigate('/login'), 2000);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Registration failed');
     }
   };
 
@@ -27,11 +30,22 @@ const Login: React.FC = () => {
           <h1 style={{ margin: 0, color: 'var(--primary)' }}>PulseNotify</h1>
         </div>
         
-        <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Welcome Back</h2>
+        <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Create Account</h2>
         
         {error && <div style={{ color: '#ef4444', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
+        {success && <div style={{ color: '#10b981', marginBottom: '1rem', textAlign: 'center' }}>Account created! Redirecting to login...</div>}
         
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleRegister}>
+          <div className="form-group">
+            <label className="form-label">Username</label>
+            <input 
+              type="text" 
+              className="input-glass" 
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
           <div className="form-group">
             <label className="form-label">Email Address</label>
             <input 
@@ -52,13 +66,13 @@ const Login: React.FC = () => {
               required
             />
           </div>
-          <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
-            Sign In
+          <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={success}>
+            Sign Up
           </button>
         </form>
         <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-          <Link to="/register" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
-            Don't have an account? <span style={{ color: 'var(--primary)' }}>Sign Up</span>
+          <Link to="/login" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
+            Already have an account? <span style={{ color: 'var(--primary)' }}>Sign In</span>
           </Link>
         </div>
       </div>
@@ -66,4 +80,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Register;
