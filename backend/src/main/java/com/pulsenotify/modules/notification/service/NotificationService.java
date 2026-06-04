@@ -30,6 +30,7 @@ public class NotificationService {
     private final TemplateRepository templateRepository;
     private final UserRepository userRepository;
     private final AuditLogRepository auditLogRepository;
+    private final SqsProducerService sqsProducerService;
 
     @Transactional
     public NotificationSubmissionResponse submitNotification(SendNotificationRequest request, UUID userId) {
@@ -82,14 +83,17 @@ public class NotificationService {
                 .build();
         auditLogRepository.save(auditLog);
 
-        // NOTE: In Phase 6, we will publish to SQS here or have a Change Data Capture approach.
-        // For now, it stays PENDING in DB.
+        if (!notification.getIsScheduled()) {
+            sqsProducerService.publishNotification(saved);
+            saved.setStatus(NotificationStatus.QUEUED);
+            notificationRepository.save(saved);
+        }
 
         return NotificationSubmissionResponse.builder()
                 .notificationId(saved.getId())
                 .correlationId(correlationId)
                 .status(saved.getStatus().name())
-                .message("Notification submitted successfully")
+                .message(notification.getIsScheduled() ? "Notification scheduled successfully" : "Notification queued successfully")
                 .build();
     }
 }
