@@ -25,12 +25,11 @@ services:
       - "6379:6379"
 
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:3.4.0
     container_name: pulse_localstack
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=sqs
       - DEFAULT_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=dummy-key
       - AWS_SECRET_ACCESS_KEY=dummy-secret

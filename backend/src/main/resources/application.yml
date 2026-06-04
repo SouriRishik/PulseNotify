@@ -6,8 +6,8 @@ spring:
     name: backend
   datasource:
     url: jdbc:postgresql://localhost:5432/pulsenotify
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -18,13 +18,6 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-app:
-  jwt:
-    secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970 # 256-bit secret for local dev
-    expirationMs: 3600000 # 1 hour
-    refreshExpirationMs: 86400000 # 24 hours
-
-spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
@@ -38,6 +31,12 @@ spring:
         static: ${AWS_REGION:us-east-1}
       sqs:
         endpoint: ${SQS_ENDPOINT:http://localhost:4566}
+
+app:
+  jwt:
+    secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970 # 256-bit secret for local dev
+    expirationMs: 3600000 # 1 hour
+    refreshExpirationMs: 86400000 # 24 hours
 
 cloud:
   aws:
