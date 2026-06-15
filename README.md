@@ -9,9 +9,9 @@ This project is built to demonstrate advanced system design, event-driven archit
 **Backend:**
 - Java 21 & Spring Boot 3
 - PostgreSQL & Spring Data JPA
-- Redis (Caching)
+- DynamoDB (Rate Limiting & Tokens)
 - Spring Security (JWT + RBAC)
-- AWS SQS & AWS Lambda
+- AWS SQS & AWS Lambda (SAM)
 
 **Frontend:**
 - React 18 & TypeScript
@@ -19,17 +19,20 @@ This project is built to demonstrate advanced system design, event-driven archit
 - React Query & Axios
 
 **DevOps & Cloud:**
-- Docker & Docker Compose
-- AWS RDS, ElastiCache, ECS
+- Docker & Docker Compose (For Local Development)
+- Vercel (Frontend Hosting)
+- AWS SAM (Serverless Application Model)
+- AWS Lambda, API Gateway, RDS, DynamoDB, SQS
 
 ## System Architecture & Workflows
 
-### 1. Modular Monolith Architecture
+### 1. Modular Architecture
 ```mermaid
 graph TD
-    Client[Frontend: React/Vite App] -->|HTTPS| SpringBoot[Spring Boot Application: Modular Monolith]
+    Client[Frontend: React/Vite App on Vercel] -->|HTTPS| APIGW[AWS API Gateway]
+    APIGW --> SpringBoot[Spring Boot on AWS Lambda]
     
-    subgraph Spring Boot
+    subgraph Serverless Spring Boot
         Auth[Auth Module]
         Template[Template Module]
         Notif_API[Notification Module]
@@ -37,41 +40,36 @@ graph TD
         Scheduler[Scheduler Component]
     end
 
-    Auth --> DB[(PostgreSQL)]
+    Auth --> DB[(PostgreSQL RDS)]
+    Auth --> DDB[(DynamoDB)]
     Template --> DB
-    Template --> Cache[(Redis Cache)]
     Notif_API --> DB
+    Notif_API --> DDB
     Analytics --> DB
-    Analytics --> Cache
 
     Scheduler -->|Poll scheduled & Move to SQS| SQS_Main
     Notif_API -->|Publish| SQS_Main[AWS SQS: Main Queue]
 ```
 
-### 2. AWS Infrastructure
+### 2. AWS Infrastructure (Deployed via SAM)
 ```mermaid
 graph TD
-    subgraph AWS Cloud
-        Route53[Amazon Route 53] --> ALB[Application Load Balancer]
-        ALB --> ECS[Amazon ECS / EC2 Cluster]
+    subgraph AWS Serverless Cloud
+        Client[User / Web Browser] --> Vercel[Vercel Global Edge Network]
+        Client --> APIGW[Amazon API Gateway]
         
-        subgraph VPC
-            ECS -->|React Frontend| Frontend_Containers
-            Frontend_Containers --> Backend_Containers
-            ECS -->|Spring Boot Backend| Backend_Containers
-            Backend_Containers --> RDS[(Amazon RDS - PostgreSQL)]
-            Backend_Containers --> ElastiCache[(ElastiCache - Redis)]
-        end
+        APIGW --> LambdaBoot[AWS Lambda: Spring Boot]
         
-        Backend_Containers -->|Publish| SQS[Amazon SQS Main Queue]
-        SQS --> Lambda[AWS Lambda Consumer]
-        Lambda --> SES[Amazon SES: Email]
-        Lambda --> SNS[Amazon SNS / Twilio: SMS]
+        LambdaBoot --> RDS[(Amazon RDS - PostgreSQL)]
+        LambdaBoot --> DDB[(Amazon DynamoDB)]
         
-        Lambda -->|Max Retries Exceeded| DLQ[SQS Dead Letter Queue]
+        LambdaBoot -->|Publish| SQS[Amazon SQS Main Queue]
+        SQS --> LambdaWorker[AWS Lambda: SQS Consumer]
+        LambdaWorker --> SES[Amazon SES: Email Provider]
+        LambdaWorker --> MockSNS[Mock SMS Provider]
+        
+        LambdaWorker -->|Max Retries Exceeded| DLQ[SQS Dead Letter Queue]
     end
-    
-    User[User/Admin] --> Route53
 ```
 
 ### 3. Notification State Machine
