@@ -7,6 +7,8 @@ export interface SendNotificationRequest {
   payload?: Record<string, any>;
   priority?: string;
   idempotencyKey: string;
+  isScheduled?: boolean;
+  scheduledAt?: string;
 }
 
 export const sendNotification = async (request: SendNotificationRequest) => {

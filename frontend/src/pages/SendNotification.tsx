@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { getAllTemplates, type Template } from '../services/template.service';
 import { sendNotification } from '../services/notification.service';
-import { Send, FileText, User } from 'lucide-react';
+import { Send, FileText, User, Calendar, Clock } from 'lucide-react';
 
 const SendNotification: React.FC = () => {
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -12,6 +12,9 @@ const SendNotification: React.FC = () => {
   const [recipient, setRecipient] = useState('');
   const [channel, setChannel] = useState('EMAIL');
   const [payloadStr, setPayloadStr] = useState('{}');
+  
+  const [isScheduled, setIsScheduled] = useState(false);
+  const [scheduledAt, setScheduledAt] = useState('');
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<{success: boolean, message: string} | null>(null);
@@ -58,7 +61,9 @@ const SendNotification: React.FC = () => {
         templateId: template.id,
         payload,
         priority: 'HIGH',
-        idempotencyKey: crypto.randomUUID()
+        idempotencyKey: crypto.randomUUID(),
+        isScheduled,
+        scheduledAt: isScheduled && scheduledAt ? new Date(scheduledAt).toISOString() : undefined
       });
       setResult({ success: true, message: 'Notification submitted successfully!' });
       setRecipient('');
@@ -149,6 +154,34 @@ const SendNotification: React.FC = () => {
                     Provide a valid JSON object matching the {'{{variables}}'} in your template.
                   </small>
                 </div>
+
+                <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: isScheduled ? '1rem' : '1.5rem' }}>
+                  <input 
+                    type="checkbox" 
+                    id="isScheduled" 
+                    checked={isScheduled} 
+                    onChange={e => setIsScheduled(e.target.checked)} 
+                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                  />
+                  <label htmlFor="isScheduled" style={{ color: 'var(--text-main)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Calendar size={16} /> Schedule for later
+                  </label>
+                </div>
+
+                {isScheduled && (
+                  <div className="form-group animate-fade-in">
+                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <Clock size={16} /> Date & Time
+                    </label>
+                    <input 
+                      type="datetime-local" 
+                      className="input-glass" 
+                      required={isScheduled} 
+                      value={scheduledAt} 
+                      onChange={e => setScheduledAt(e.target.value)} 
+                    />
+                  </div>
+                )}
 
                 {result && (
                   <div style={{ 
