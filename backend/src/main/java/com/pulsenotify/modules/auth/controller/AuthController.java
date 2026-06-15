@@ -39,6 +39,49 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/verify")
+    public ResponseEntity<MessageResponse> verifyEmail(@RequestParam String email, @RequestParam String token) {
+        try {
+            MessageResponse response = authService.verifyEmail(email, token);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/resend-otp")
+    public ResponseEntity<MessageResponse> resendOtp(@RequestParam String email) {
+        try {
+            MessageResponse response = authService.resendOtp(email);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<MessageResponse> forgotPassword(@RequestParam String email) {
+        try {
+            MessageResponse response = authService.requestPasswordReset(email);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<MessageResponse> resetPassword(
+            @RequestParam String email,
+            @RequestParam String token,
+            @RequestParam String newPassword) {
+        try {
+            MessageResponse response = authService.resetPassword(email, token, newPassword);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
+
     @PostMapping("/refresh")
     public ResponseEntity<TokenRefreshResponse> refreshtoken(@Valid @RequestBody TokenRefreshRequest request) {
         String requestRefreshToken = request.getRefreshToken();

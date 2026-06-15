@@ -10,6 +10,7 @@ import java.util.Set;
 public class SignupRequest {
     @NotBlank
     @Email
+    @jakarta.validation.constraints.Pattern(regexp = "^[\\w-\\.]+@gmail\\.com$", message = "Only @gmail.com addresses are allowed")
     private String email;
 
     @NotBlank
