@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
-import { getAllTemplates, createTemplate, type Template, deleteTemplate, toggleTemplateStatus } from '../services/template.service';
-import { Plus, Trash2, Activity, CheckCircle, XCircle } from 'lucide-react';
+import { getAllTemplates, createTemplate, type Template, deleteTemplate, toggleTemplateStatus, updateTemplate } from '../services/template.service';
+import { Plus, Trash2, Activity, CheckCircle, XCircle, Edit2 } from 'lucide-react';
 
 const Templates: React.FC = () => {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: '', subject: '', body: '' });
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,25 +28,48 @@ const Templates: React.FC = () => {
     fetchTemplates();
   }, []);
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitError('');
     try {
-      await createTemplate({
-        name: formData.name,
-        subject: formData.subject,
-        body: formData.body,
-        isActive: true,
-      });
-      setShowModal(false);
-      setFormData({ name: '', subject: '', body: '' });
+      if (editingTemplateId) {
+        await updateTemplate(editingTemplateId, {
+          name: formData.name,
+          subject: formData.subject,
+          body: formData.body,
+        });
+      } else {
+        await createTemplate({
+          name: formData.name,
+          subject: formData.subject,
+          body: formData.body,
+          isActive: true,
+        });
+      }
+      handleCloseModal();
       fetchTemplates();
     } catch (err: any) {
-      setSubmitError(err.response?.data?.message || 'Failed to create template');
+      setSubmitError(err.response?.data?.message || `Failed to ${editingTemplateId ? 'update' : 'create'} template`);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingTemplateId(null);
+    setFormData({ name: '', subject: '', body: '' });
+  };
+
+  const handleEditClick = (template: Template) => {
+    setFormData({
+      name: template.name,
+      subject: template.subject || '',
+      body: template.body
+    });
+    setEditingTemplateId(template.id);
+    setShowModal(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -125,6 +149,9 @@ const Templates: React.FC = () => {
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                  <button onClick={() => handleEditClick(template)} style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer' }}>
+                    <Edit2 size={16} />
+                  </button>
                   <button onClick={() => handleDelete(template.id)} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer' }}>
                     <Trash2 size={16} />
                   </button>
@@ -138,11 +165,11 @@ const Templates: React.FC = () => {
       {showModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div className="glass-panel animate-fade-in" style={{ width: '100%', maxWidth: '500px', padding: '2rem' }}>
-            <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>Create New Template</h2>
+            <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>{editingTemplateId ? 'Edit Template' : 'Create New Template'}</h2>
             
             {submitError && <div style={{ color: '#ef4444', marginBottom: '1rem' }}>{submitError}</div>}
             
-            <form onSubmit={handleCreate}>
+            <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label className="form-label">Template Name</label>
                 <input type="text" className="input-glass" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Welcome Email" />
@@ -166,9 +193,9 @@ const Templates: React.FC = () => {
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                <button type="button" onClick={() => setShowModal(false)} className="input-glass" style={{ flex: 1, textAlign: 'center', cursor: 'pointer' }}>Cancel</button>
+                <button type="button" onClick={handleCloseModal} className="input-glass" style={{ flex: 1, textAlign: 'center', cursor: 'pointer' }}>Cancel</button>
                 <button type="submit" className="btn-primary" style={{ flex: 1 }} disabled={isSubmitting}>
-                  {isSubmitting ? 'Creating...' : 'Create Template'}
+                  {isSubmitting ? (editingTemplateId ? 'Updating...' : 'Creating...') : (editingTemplateId ? 'Update Template' : 'Create Template')}
                 </button>
               </div>
             </form>

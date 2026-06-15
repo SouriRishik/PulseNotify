@@ -9,6 +9,7 @@
   --secondary: #8b5cf6; /* Neon Purple */
   
   --text-main: #f1f5f9;
+  --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
   
   --border: rgba(255, 255, 255, 0.1);
@@ -24,6 +25,7 @@
   --bg-card-hover: rgba(255, 255, 255, 0.9);
   
   --text-main: #0f172a;
+  --text-secondary: #334155;
   --text-muted: #475569;
   
   --border: rgba(0, 0, 0, 0.1);
