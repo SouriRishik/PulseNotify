@@ -17,11 +17,16 @@ import org.springframework.web.bind.annotation.*;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final com.pulsenotify.modules.notification.service.RateLimitService rateLimitService;
 
     @PostMapping("/send")
-    public ResponseEntity<NotificationSubmissionResponse> sendNotification(
+    public ResponseEntity<?> sendNotification(
             @Valid @RequestBody SendNotificationRequest request,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        
+        if (rateLimitService.isRateLimited(userDetails.getId())) {
+            return ResponseEntity.status(429).body("Rate limit exceeded. Please try again later.");
+        }
         
         NotificationSubmissionResponse response = notificationService.submitNotification(request, userDetails.getId());
         return ResponseEntity.accepted().body(response);
