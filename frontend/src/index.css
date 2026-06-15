@@ -125,13 +125,17 @@ a:hover {
   border-radius: 8px;
   outline: none;
   transition: all 0.3s ease;
-  margin-bottom: 1rem;
 }
 
 .input-glass:focus {
   border-color: var(--primary);
   background: rgba(255, 255, 255, 0.1);
   box-shadow: 0 0 10px var(--primary-glow);
+}
+
+.input-glass option {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
 }
 
 .form-group {
