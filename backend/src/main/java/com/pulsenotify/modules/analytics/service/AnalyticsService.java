@@ -5,6 +5,7 @@ import com.pulsenotify.modules.auth.entity.User;
 import com.pulsenotify.modules.auth.repository.UserRepository;
 import com.pulsenotify.modules.notification.entity.NotificationStatus;
 import com.pulsenotify.modules.notification.repository.NotificationRepository;
+import com.pulsenotify.modules.notification.repository.DeliveryEventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ public class AnalyticsService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final DeliveryEventRepository deliveryEventRepository;
 
     public DashboardMetricsResponse getDashboardMetrics(UUID userId) {
         User user = userRepository.findById(userId)
@@ -47,11 +49,15 @@ public class AnalyticsService {
 
         double successRate = total > 0 ? ((double) successfulCount / total) * 100.0 : 0.0;
 
+        long openedCount = deliveryEventRepository.countByUserAndEventType(user, "OPENED");
+        double openRate = successfulCount > 0 ? ((double) openedCount / successfulCount) * 100.0 : 0.0;
+
         return DashboardMetricsResponse.builder()
                 .totalNotifications(total)
                 .statusBreakdown(statusBreakdown)
                 .channelBreakdown(channelBreakdown)
                 .successRate(Math.round(successRate * 100.0) / 100.0)
+                .openRate(Math.round(openRate * 100.0) / 100.0)
                 .build();
     }
 }

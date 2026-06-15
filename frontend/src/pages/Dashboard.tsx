@@ -47,6 +47,14 @@ const Dashboard: React.FC = () => {
                 </div>
                 <h1 style={{ fontSize: '3rem', margin: 0 }}>{metrics.successRate.toFixed(1)}%</h1>
               </div>
+
+              <div className="glass-panel" style={{ padding: '2rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+                  <CheckCircle color="var(--secondary)" size={24} style={{ marginRight: '10px' }} />
+                  <h3 style={{ margin: 0 }}>Open Rate</h3>
+                </div>
+                <h1 style={{ fontSize: '3rem', margin: 0 }}>{metrics.openRate.toFixed(1)}%</h1>
+              </div>
             </div>
 
             <div className="glass-panel" style={{ padding: '2rem', height: '400px' }}>

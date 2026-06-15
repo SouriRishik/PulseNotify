@@ -5,6 +5,7 @@ export interface DashboardMetrics {
   successRate: number;
   channelBreakdown: Record<string, number>;
   statusBreakdown: Record<string, number>;
+  openRate: number;
 }
 
 export const getDashboardMetrics = async (): Promise<DashboardMetrics> => {
