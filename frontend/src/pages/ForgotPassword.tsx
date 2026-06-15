@@ -19,8 +19,8 @@ const ForgotPassword: React.FC = () => {
       await forgotPassword(email);
       setSuccess(true);
       setTimeout(() => navigate(`/reset-password?email=${encodeURIComponent(email)}`), 2000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to send reset code');
+    } catch {
+      setError('Failed to send reset code');
       setLoading(false);
     }
   };

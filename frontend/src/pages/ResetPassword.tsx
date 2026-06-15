@@ -31,8 +31,8 @@ const ResetPassword: React.FC = () => {
       await resetPassword(email, token, newPassword);
       setSuccess(true);
       setTimeout(() => navigate('/login'), 2000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to reset password');
+    } catch {
+      setError('Failed to reset password');
       setLoading(false);
     }
   };

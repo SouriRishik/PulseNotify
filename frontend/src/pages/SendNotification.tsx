@@ -45,10 +45,10 @@ const SendNotification: React.FC = () => {
       return;
     }
 
-    let payload = {};
+    let payload: Record<string, unknown>;
     try {
       payload = JSON.parse(payloadStr);
-    } catch (e) {
+    } catch {
       setResult({ success: false, message: 'Invalid JSON payload format' });
       setIsSubmitting(false);
       return;
@@ -69,8 +69,8 @@ const SendNotification: React.FC = () => {
       setRecipient('');
       setPayloadStr('{}');
       setSelectedTemplateId('');
-    } catch (err: any) {
-      setResult({ success: false, message: err.response?.data?.message || 'Failed to send notification' });
+    } catch {
+      setResult({ success: false, message: 'Failed to send notification' });
     } finally {
       setIsSubmitting(false);
     }

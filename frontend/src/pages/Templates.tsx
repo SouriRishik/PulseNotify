@@ -12,20 +12,30 @@ const Templates: React.FC = () => {
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchTemplates = async () => {
-    setLoading(true);
+  const fetchTemplates = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const data = await getAllTemplates();
       setTemplates(data);
     } catch (err) {
       console.error('Failed to fetch templates', err);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTemplates();
+    let mounted = true;
+    getAllTemplates().then(data => {
+      if (mounted) {
+        setTemplates(data);
+        setLoading(false);
+      }
+    }).catch(err => {
+      console.error('Failed to fetch templates', err);
+      if (mounted) setLoading(false);
+    });
+    return () => { mounted = false; };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,9 +58,9 @@ const Templates: React.FC = () => {
         });
       }
       handleCloseModal();
-      fetchTemplates();
-    } catch (err: any) {
-      setSubmitError(err.response?.data?.message || `Failed to ${editingTemplateId ? 'update' : 'create'} template`);
+      fetchTemplates(false);
+    } catch {
+      setSubmitError(`Failed to ${editingTemplateId ? 'update' : 'create'} template`);
     } finally {
       setIsSubmitting(false);
     }
@@ -76,7 +86,7 @@ const Templates: React.FC = () => {
     if (window.confirm('Are you sure you want to delete this template?')) {
       try {
         await deleteTemplate(id);
-        fetchTemplates();
+        fetchTemplates(false);
       } catch (err) {
         console.error('Failed to delete template', err);
       }
@@ -86,7 +96,7 @@ const Templates: React.FC = () => {
   const handleToggleStatus = async (id: string, currentStatus: boolean) => {
     try {
       await toggleTemplateStatus(id, !currentStatus);
-      fetchTemplates();
+      fetchTemplates(false);
     } catch (err) {
       console.error('Failed to toggle status', err);
     }

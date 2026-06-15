@@ -4,7 +4,7 @@ export interface SendNotificationRequest {
   channelName: string; // e.g. "EMAIL", "SMS"
   recipientAddress: string;
   templateId?: string;
-  payload?: Record<string, any>;
+  payload?: Record<string, unknown>;
   priority?: string;
   idempotencyKey: string;
   isScheduled?: boolean;

@@ -19,8 +19,8 @@ const Register: React.FC = () => {
       await register(firstName, lastName, email, password);
       setSuccess(true);
       setTimeout(() => navigate(`/verify?email=${encodeURIComponent(email)}`), 2000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
+    } catch {
+      setError('Registration failed');
     }
   };
 

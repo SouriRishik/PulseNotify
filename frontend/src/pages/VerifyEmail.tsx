@@ -29,9 +29,9 @@ const VerifyEmail: React.FC = () => {
       setTimeLeft(60);
       setMessage('A new OTP has been sent to your email.');
       setStatus('success'); // just to show it as green
-    } catch (err: any) {
+    } catch {
       setStatus('error');
-      setMessage(err.response?.data?.message || 'Failed to resend OTP.');
+      setMessage('Failed to resend OTP.');
     }
   };
 
@@ -49,9 +49,9 @@ const VerifyEmail: React.FC = () => {
       setStatus('success');
       setMessage('Your email has been successfully verified! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
-    } catch (err: any) {
+    } catch {
       setStatus('error');
-      setMessage(err.response?.data?.message || 'Verification failed. The code may be expired or invalid.');
+      setMessage('Verification failed. The code may be expired or invalid.');
     }
   };
 
