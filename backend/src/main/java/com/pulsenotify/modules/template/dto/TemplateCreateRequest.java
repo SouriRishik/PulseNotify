@@ -8,7 +8,6 @@ public class TemplateCreateRequest {
     @NotBlank
     private String name;
     
-    @NotBlank
     private String subject;
     
     @NotBlank

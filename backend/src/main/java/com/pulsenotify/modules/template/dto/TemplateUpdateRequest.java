@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 public class TemplateUpdateRequest {
-    @NotBlank
     private String subject;
     
     @NotBlank
