@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  PulseNotify Backend
+
+  SAM Template for PulseNotify Spring Boot backend running on AWS Lambda via Web Adapter
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 1024
+    Environment:
+      Variables:
+        PORT: 8080
+        # Configure AWS Lambda Web Adapter
+        AWS_LWA_INVOKE_MODE: response_stream
+
+Resources:
+  PulseNotifyBackendFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: any
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+      DockerTag: v1
+
+Outputs:
+  ApiEndpoint:
+    Description: "API Gateway endpoint URL for Prod environment"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
