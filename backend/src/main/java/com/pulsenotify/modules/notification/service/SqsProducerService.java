@@ -20,6 +20,7 @@ public class SqsProducerService {
 
     private final SqsTemplate sqsTemplate;
     private final ObjectMapper objectMapper;
+    private final TemplateCompiler templateCompiler;
 
     @Value("${cloud.aws.sqs.queue-name}")
     private String queueName;
@@ -31,8 +32,12 @@ public class SqsProducerService {
             messagePayload.put("recipient", notification.getRecipientAddress());
             messagePayload.put("channel", notification.getChannel().getChannelName());
             messagePayload.put("correlationId", notification.getCorrelationId());
-            messagePayload.put("templateSubject", notification.getTemplate().getSubject());
-            messagePayload.put("templateBody", notification.getTemplate().getBody());
+            
+            String compiledSubject = templateCompiler.compile(notification.getTemplate().getSubject(), notification.getPayload());
+            String compiledBody = templateCompiler.compile(notification.getTemplate().getBody(), notification.getPayload());
+            
+            messagePayload.put("templateSubject", compiledSubject);
+            messagePayload.put("templateBody", compiledBody);
             messagePayload.put("dataPayload", notification.getPayload());
 
             String jsonPayload = objectMapper.writeValueAsString(messagePayload);
